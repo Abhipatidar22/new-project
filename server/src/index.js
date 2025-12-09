@@ -7,17 +7,29 @@ import path from 'path';
 import { db, uploadsDir } from './db.js';
 
 const app = express();
-const allowedOrigin = process.env.CORS_ORIGIN || '*'
-app.use(cors({ origin: allowedOrigin, methods: ['GET','POST','OPTIONS'], allowedHeaders: ['Content-Type','x-seed-key'], optionsSuccessStatus: 204 }))
+// Normalize CORS origins: comma-separated, trim and strip trailing slashes
+const originsEnv = process.env.CORS_ORIGIN || '*'
+const allowedOrigins = originsEnv.split(',').map(o => o.trim().replace(/\/$/, ''))
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true)
+    if (allowedOrigins.includes('*')) return callback(null, true)
+    const normalized = origin.replace(/\/$/, '')
+    callback(null, allowedOrigins.includes(normalized))
+  },
+  methods: ['GET','POST','OPTIONS'],
+  allowedHeaders: ['Content-Type','x-seed-key'],
+  optionsSuccessStatus: 204
+}))
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', allowedOrigin === '*' ? '*' : allowedOrigin)
+  const reqOrigin = req.headers.origin ? String(req.headers.origin).replace(/\/$/, '') : ''
+  const acao = allowedOrigins.includes('*') ? '*' : (allowedOrigins.includes(reqOrigin) ? reqOrigin : '')
+  if (acao) res.header('Access-Control-Allow-Origin', acao)
   res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
   res.header('Access-Control-Allow-Headers', 'Content-Type, x-seed-key')
   next()
 })
-app.options('*', (req, res) => {
-  res.status(204).end()
-})
+app.options('*', (req, res) => res.status(204).end())
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
 
