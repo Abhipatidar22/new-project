@@ -58,3 +58,19 @@ Optional:
 	- `npm run build`
 	- `npm run preview`
 	- Ensure `client/.env.production` has the same values as above.
+
+## Seed Data via Admin UI (Hosted)
+
+- Open the deployed frontend: `https://new-project-3gqq.vercel.app/`.
+- Use the Admin Panel to add:
+	- **Projects:** name, description, and an image (cropped to 450x350).
+	- **Clients:** name, designation, description, and an image.
+- Verify data on the backend:
+	- Projects: `https://new-project-4jlz.onrender.com/api/projects`
+	- Clients: `https://new-project-4jlz.onrender.com/api/clients`
+- Verify uploaded images:
+	- Images are served from `https://new-project-4jlz.onrender.com/uploads/...` and will display on the Vercel site.
+
+Notes:
+- Ensure the backend allows CORS from your Vercel domain (e.g., set `CORS_ORIGIN` to `https://new-project-3gqq.vercel.app`).
+- For persistence of uploads and the SQLite DB across deploys, attach a persistent disk to the Render service for `server/data` and `server/uploads`.
