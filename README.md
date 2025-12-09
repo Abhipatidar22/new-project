@@ -90,3 +90,26 @@ Notes:
 	- Examples: `https://new-project-3gqq.vercel.app`, `*.vercel.app` (for previews), or a custom prod domain.
 - Persistence (recommended):
 	- Attach a persistent disk to the Render service; ensure it maps to `server/data` (SQLite DB) and `server/uploads` (images).
+
+## Backup & Restore
+
+- Backup (Render):
+	- Stop the service or ensure no writes during backup.
+	- Download `server/data/app.db` (SQLite database) and zip `server/uploads` (images) from the mounted disk.
+	- Store backups securely (date-stamped).
+- Restore:
+	- Upload your saved `app.db` to `server/data` and unzip `uploads` to `server/uploads` on the mounted disk.
+	- Restart the service; verify endpoints and image URLs.
+
+## Troubleshooting
+
+- CORS errors in browser:
+	- Set `CORS_ORIGIN` on Render to your exact Vercel domain (no trailing slash) or use `*.vercel.app` for previews.
+	- Redeploy the backend; confirm `Access-Control-Allow-Origin` echoes your frontend origin.
+- Empty lists (projects/clients):
+	- Run `POST /api/seed` to populate demo data; refresh frontend.
+- Image upload issues:
+	- Ensure `server/uploads` exists and your persistent disk maps correctly.
+	- Cropping uses `sharp`; if it fails, the original image is served.
+- Data not persisting across deploys:
+	- Verify the persistent disk is attached and paths point to `server/data` and `server/uploads`.
