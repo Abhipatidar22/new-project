@@ -7,23 +7,43 @@ import path from 'path';
 import { db, uploadsDir } from './db.js';
 
 const app = express();
-// Normalize CORS origins: comma-separated, trim and strip trailing slashes
+// Normalize CORS origins: comma-separated; support exact and wildcard like *.vercel.app
 const originsEnv = process.env.CORS_ORIGIN || '*'
-const allowedOrigins = originsEnv.split(',').map(o => o.trim().replace(/\/$/, ''))
+const originTokens = originsEnv.split(',').map(o => o.trim()).filter(Boolean)
+const hasStar = originTokens.includes('*')
+
+function stripSlash(s) { return s.replace(/\/$/, '') }
+function matchesOrigin(origin) {
+  if (!origin) return true
+  if (hasStar) return true
+  const normalized = stripSlash(origin)
+  // Exact matches (scheme + host)
+  if (originTokens.some(t => t.startsWith('http') && stripSlash(t) === normalized)) return true
+  try {
+    const { hostname } = new URL(normalized)
+    for (const t of originTokens) {
+      const v = stripSlash(t)
+      if (v.startsWith('*.')) {
+        const dom = v.slice(2)
+        if (hostname === dom || hostname.endsWith('.' + dom)) return true
+      } else if (!v.startsWith('http')) {
+        // treat bare domain as suffix rule
+        if (hostname === v || hostname.endsWith('.' + v)) return true
+      }
+    }
+  } catch {}
+  return false
+}
+
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true)
-    if (allowedOrigins.includes('*')) return callback(null, true)
-    const normalized = origin.replace(/\/$/, '')
-    callback(null, allowedOrigins.includes(normalized))
-  },
+  origin: (origin, cb) => cb(null, matchesOrigin(origin)),
   methods: ['GET','POST','OPTIONS'],
   allowedHeaders: ['Content-Type','x-seed-key'],
   optionsSuccessStatus: 204
 }))
 app.use((req, res, next) => {
-  const reqOrigin = req.headers.origin ? String(req.headers.origin).replace(/\/$/, '') : ''
-  const acao = allowedOrigins.includes('*') ? '*' : (allowedOrigins.includes(reqOrigin) ? reqOrigin : '')
+  const reqOrigin = req.headers.origin ? stripSlash(String(req.headers.origin)) : ''
+  const acao = hasStar ? '*' : (matchesOrigin(reqOrigin) ? reqOrigin : '')
   if (acao) res.header('Access-Control-Allow-Origin', acao)
   res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
   res.header('Access-Control-Allow-Headers', 'Content-Type, x-seed-key')
