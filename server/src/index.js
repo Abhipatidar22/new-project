@@ -69,8 +69,7 @@ app.get('/api/projects', (req, res) => {
 app.post('/api/projects', upload.single('image'), async (req, res) => {
   const { name, description } = req.body
   if (!name || !description) return res.status(400).json({ error: 'Missing fields' })
-  if (!req.file) return res.status(400).json({ error: 'Image file is required' })
-  const imageUrl = await cropImageIfProvided(req.file.path)
+  const imageUrl = req.file ? await cropImageIfProvided(req.file.path) : null
   db.run('INSERT INTO projects (name, description, image) VALUES (?, ?, ?)', [name, description, imageUrl], function (err) {
     if (err) return res.status(500).json({ error: err.message })
     db.get('SELECT * FROM projects WHERE id = ?', [this.lastID], (err2, row) => {
@@ -90,8 +89,7 @@ app.get('/api/clients', (req, res) => {
 app.post('/api/clients', upload.single('image'), async (req, res) => {
   const { name, designation, description } = req.body
   if (!name || !designation || !description) return res.status(400).json({ error: 'Missing fields' })
-  if (!req.file) return res.status(400).json({ error: 'Image file is required' })
-  const imageUrl = await cropImageIfProvided(req.file.path)
+  const imageUrl = req.file ? await cropImageIfProvided(req.file.path) : null
   db.run('INSERT INTO clients (name, designation, description, image) VALUES (?, ?, ?, ?)', [name, designation, description, imageUrl], function (err) {
     if (err) return res.status(500).json({ error: err.message })
     db.get('SELECT * FROM clients WHERE id = ?', [this.lastID], (err2, row) => {
