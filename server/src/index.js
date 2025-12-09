@@ -8,7 +8,16 @@ import { db, uploadsDir } from './db.js';
 
 const app = express();
 const allowedOrigin = process.env.CORS_ORIGIN || '*'
-app.use(cors({ origin: allowedOrigin }))
+app.use(cors({ origin: allowedOrigin, methods: ['GET','POST','OPTIONS'], allowedHeaders: ['Content-Type','x-seed-key'], optionsSuccessStatus: 204 }))
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', allowedOrigin === '*' ? '*' : allowedOrigin)
+  res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Content-Type, x-seed-key')
+  next()
+})
+app.options('*', (req, res) => {
+  res.status(204).end()
+})
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
 
