@@ -36,3 +36,25 @@ Admin Panel tabs allow adding projects and clients (with image upload + 450x350 
 Notes:
 - Uploaded images are stored under `server/uploads` and served via `/uploads/...`.
 - Placeholder images appear if none uploaded.
+
+## Frontend Deploy (Vercel)
+
+- Root Directory: set to `client` in Vercel project settings.
+- Build Command: `npm run build`
+- Output Directory: `dist`
+- Install Command: `npm install`
+- Environment Variables:
+	- `VITE_API_BASE` = `https://new-project-4jlz.onrender.com/api`
+	- `VITE_IMG_BASE` = `https://new-project-4jlz.onrender.com`
+
+Steps:
+- In Vercel, create/import the repo and set Root Directory to `client`.
+- Add the environment variables above for Production (and Preview if needed).
+- Deploy; Vercel will serve the built `dist` and the app will call the Render API.
+
+Optional:
+- For local prod build pointing at Render, run:
+	- `cd client`
+	- `npm run build`
+	- `npm run preview`
+	- Ensure `client/.env.production` has the same values as above.
