@@ -4,8 +4,10 @@ import path from 'path'
 
 sqlite3.verbose()
 
-const dataDir = path.resolve(process.cwd(), 'server', 'data')
-const uploadsDir = path.resolve(process.cwd(), 'server', 'uploads')
+// Resolve paths relative to the server package root (../ from src)
+const serverRoot = path.resolve(path.dirname(process.argv[1]), '..')
+const dataDir = path.join(serverRoot, 'data')
+const uploadsDir = path.join(serverRoot, 'uploads')
 
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true })
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true })

@@ -44,6 +44,21 @@ async function cropImageIfProvided(filePath) {
   }
 }
 
+// One-time seed endpoint (protected by optional SEED_KEY)
+const seedKey = process.env.SEED_KEY || null
+app.post('/api/seed', async (req, res) => {
+  try {
+    if (seedKey) {
+      const provided = req.headers['x-seed-key']
+      if (!provided || provided !== seedKey) return res.status(403).json({ error: 'Forbidden' })
+    }
+    await import('./seed.js')
+    res.json({ status: 'seeded' })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
 // Projects
 app.get('/api/projects', (req, res) => {
   db.all('SELECT * FROM projects ORDER BY id DESC', (err, rows) => {
