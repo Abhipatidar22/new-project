@@ -3,7 +3,7 @@
 This project includes a landing page and an admin panel to manage projects, clients, contact form submissions, and newsletter subscriptions.
 
 ## Stack
-- Server: Node.js + Express + SQLite (`better-sqlite3`), image upload & cropping with `multer` + `sharp`
+- Server: Node.js + Express + SQLite (`sqlite3`), image upload & cropping with `multer` + `sharp`
 - Client: React + Vite
 
 ## Quick Start (Windows PowerShell)
@@ -90,6 +90,36 @@ Notes:
 	- Examples: `https://new-project-3gqq.vercel.app`, `*.vercel.app` (for previews), or a custom prod domain.
 - Persistence (recommended):
 	- Attach a persistent disk to the Render service; ensure it maps to `server/data` (SQLite DB) and `server/uploads` (images).
+
+## Admin Guide
+
+- Overview:
+	- The Admin Panel is included on the main site. It provides tabs to add Projects and Clients (with image upload + automatic 450x350 cropping), and to view Contact submissions and Newsletter subscriptions.
+- Add Projects:
+	- Fill name and description; upload an image. On submit, the image is cropped server-side and stored under `server/uploads`, and a record is saved in SQLite.
+- Add Clients:
+	- Fill name, designation, description; upload an image. On submit, the image is cropped and saved; the client appears in the Clients list on the landing page.
+- View Contacts:
+	- Submissions from the landing page Contact Form appear here automatically. Backend endpoint: `GET /api/contacts`.
+- View Subscriptions:
+	- Newsletter signups appear here automatically. Backend endpoint: `GET /api/subscriptions`.
+- Image paths:
+	- The frontend displays images using `VITE_IMG_BASE` + `/uploads/<filename>`. In production this points to the Render backend.
+
+## Data Storage & Viewing
+
+- SQLite Database:
+	- File: `server/data/app.db` on the backend server. This stores tables for projects, clients, contacts, and subscriptions.
+- Uploaded Images:
+	- Directory: `server/uploads`. Files are served at `https://<backend-host>/uploads/<filename>`.
+- Quick Data Views (hosted):
+	- Projects: `GET https://new-project-4jlz.onrender.com/api/projects`
+	- Clients: `GET https://new-project-4jlz.onrender.com/api/clients`
+	- Contacts: `GET https://new-project-4jlz.onrender.com/api/contacts`
+	- Subscriptions: `GET https://new-project-4jlz.onrender.com/api/subscriptions`
+- Local Inspection (optional):
+	- You can open `app.db` with any SQLite viewer (e.g., DB Browser for SQLite). Download it from the Render persistent disk, then inspect tables.
+
 
 ## Backup & Restore
 
