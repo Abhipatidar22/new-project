@@ -79,6 +79,19 @@ app.post('/api/projects', upload.single('image'), async (req, res) => {
   })
 })
 
+// Debug: simple JSON insert for projects (no image)
+app.post('/api/projects-json', (req, res) => {
+  const { name, description } = req.body
+  if (!name || !description) return res.status(400).json({ error: 'Missing fields' })
+  db.run('INSERT INTO projects (name, description, image) VALUES (?, ?, ?)', [name, description, null], function (err) {
+    if (err) return res.status(500).json({ error: err.message })
+    db.get('SELECT * FROM projects WHERE id = ?', [this.lastID], (err2, row) => {
+      if (err2) return res.status(500).json({ error: err2.message })
+      res.status(201).json(row)
+    })
+  })
+})
+
 // Clients
 app.get('/api/clients', (req, res) => {
   db.all('SELECT * FROM clients ORDER BY id DESC', (err, rows) => {
