@@ -7,7 +7,8 @@ import path from 'path';
 import { db, uploadsDir } from './db.js';
 
 const app = express();
-app.use(cors());
+const allowedOrigin = process.env.CORS_ORIGIN || '*'
+app.use(cors({ origin: allowedOrigin }))
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
 
