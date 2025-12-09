@@ -74,3 +74,19 @@ Optional:
 Notes:
 - Ensure the backend allows CORS from your Vercel domain (e.g., set `CORS_ORIGIN` to `https://new-project-3gqq.vercel.app`).
 - For persistence of uploads and the SQLite DB across deploys, attach a persistent disk to the Render service for `server/data` and `server/uploads`.
+
+## Operations
+
+- Reseed backend data:
+	- Without key: `POST https://new-project-4jlz.onrender.com/api/seed`
+	- With key: set `SEED_KEY` in Render, then send header `x-seed-key: <your-seed-key>` when calling `/api/seed`.
+- View data quickly:
+	- Projects: `GET https://new-project-4jlz.onrender.com/api/projects`
+	- Clients: `GET https://new-project-4jlz.onrender.com/api/clients`
+	- Contacts: `GET https://new-project-4jlz.onrender.com/api/contacts`
+	- Subscriptions: `GET https://new-project-4jlz.onrender.com/api/subscriptions`
+- CORS configuration:
+	- Env var `CORS_ORIGIN` on Render supports multiple entries and wildcards.
+	- Examples: `https://new-project-3gqq.vercel.app`, `*.vercel.app` (for previews), or a custom prod domain.
+- Persistence (recommended):
+	- Attach a persistent disk to the Render service; ensure it maps to `server/data` (SQLite DB) and `server/uploads` (images).
