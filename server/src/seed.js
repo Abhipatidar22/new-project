@@ -18,6 +18,7 @@ const clients = [
 
 await new Promise((resolve, reject) => {
   db.serialize(() => {
+    db.run('BEGIN')
     db.run('DELETE FROM projects')
     db.run('DELETE FROM clients')
     const pStmt = db.prepare('INSERT INTO projects (name, description, image) VALUES (?, ?, ?)')
@@ -26,7 +27,10 @@ await new Promise((resolve, reject) => {
     const cStmt = db.prepare('INSERT INTO clients (name, designation, description, image) VALUES (?, ?, ?, ?)')
     clients.forEach(c => cStmt.run(c.name, c.designation, c.description, c.image))
     cStmt.finalize()
-    resolve()
+    db.run('COMMIT', (err) => {
+      if (err) return reject(err)
+      resolve()
+    })
   })
 })
 
